@@ -1,0 +1,5 @@
+org/cosmodev/Status/CaptchaStatus.class
+org/cosmodev/Plugin.class
+org/cosmodev/Utils/GiveSets.class
+org/cosmodev/Events/CaptchaEvents.class
+org/cosmodev/Status/StatusManager.class

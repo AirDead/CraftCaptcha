@@ -1,0 +1,8 @@
+name: CraftCaptcha
+version: '${project.version}'
+main: org.cosmodev.Plugin
+api-version: '1.20'
+
+commands:
+  stat:
+    description: Статистика пройденных капчей
