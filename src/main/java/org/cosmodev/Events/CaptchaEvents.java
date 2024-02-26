@@ -17,26 +17,24 @@ import org.cosmodev.Status.CaptchaStatus;
 import org.cosmodev.Status.StatusManager;
 import org.cosmodev.Utils.GiveSets;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class CaptchaEvents implements Listener {
-
-    List<String> kits = new ArrayList<>(List.of("default", "iron", "gold"));
+    List<String> kits = new ArrayList<>(List.of("diamond", "iron", "gold"));
     private static int totalCaptchasPassed = 0;
-
-
+    private static final Map<String, Long> ipCooldowns = new HashMap<>();
+    private static final long COOLDOWN_DURATION = 15 * 60 * 1000;
 
     @EventHandler
     public void joinEvent(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        StatusManager.setPlayerStatus(player, CaptchaStatus.OFFLINE);
         CaptchaStatus status = StatusManager.getPlayerStatus(player);
-        if (status == CaptchaStatus.OFFLINE) {
+        String ipAddress = player.getAddress().getAddress().getHostAddress();
+        if (status == CaptchaStatus.OFFLINE && !isIpWithinCooldown(ipAddress)) {
             Location locationBack = player.getLocation().clone();
             StatusManager.setBackLocation(player, locationBack);
             player.getInventory().clear();
-
             String worldName = Plugin.getInstance().getConfig().getString("teleportLocation.world");
             World world = Bukkit.getWorld(worldName);
             if (world != null) {
@@ -62,7 +60,6 @@ public class CaptchaEvents implements Listener {
     @EventHandler
     public void leaveEvent(PlayerQuitEvent event){
         Player player = event.getPlayer();
-        StatusManager.setPlayerStatus(player, CaptchaStatus.OFFLINE);
         player.getInventory().clear();
     }
 
@@ -85,6 +82,8 @@ public class CaptchaEvents implements Listener {
                 Location backLocation = StatusManager.getBackLocation(player);
                 if (backLocation != null) {
                     player.teleport(backLocation);
+                    String ipAddress = player.getAddress().getAddress().getHostAddress();
+                    ipCooldowns.put(ipAddress, System.currentTimeMillis());
                 } else {
                     player.sendMessage("Произошла ошибка, пожалуйста сообщите администрации!");
                 }
@@ -95,9 +94,6 @@ public class CaptchaEvents implements Listener {
             }
         }
     }
-
-
-
     @EventHandler
     public void chatEvent(PlayerChatEvent event){
         Player player = event.getPlayer();
@@ -106,7 +102,6 @@ public class CaptchaEvents implements Listener {
             event.setCancelled(true);
         }
     }
-
     @EventHandler
     public void attackPlayer(EntityDamageByEntityEvent event){
         if (event.getDamager() instanceof Player) {
@@ -125,5 +120,16 @@ public class CaptchaEvents implements Listener {
     }
     public static int getTotalCaptchasPassed() {
         return totalCaptchasPassed;
+    }
+    private boolean isIpWithinCooldown(String ipAddress) {
+        if (ipCooldowns.containsKey(ipAddress)) {
+            long lastPassTime = ipCooldowns.get(ipAddress);
+            return System.currentTimeMillis() - lastPassTime < COOLDOWN_DURATION;
+        }
+        return false;
+    }
+    public static void cleanupExpiredIpCooldowns() {
+        long currentTime = System.currentTimeMillis();
+        ipCooldowns.entrySet().removeIf(entry -> currentTime - entry.getValue() > COOLDOWN_DURATION);
     }
 }
