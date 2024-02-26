@@ -1,4 +1,5 @@
 org\cosmodev\Status\CaptchaStatus.class
+org\cosmodev\Utils\WebhookSender.class
 org\cosmodev\Events\CaptchaEvents.class
 org\cosmodev\Commands\StatCMD.class
 org\cosmodev\Utils\GiveSets.class

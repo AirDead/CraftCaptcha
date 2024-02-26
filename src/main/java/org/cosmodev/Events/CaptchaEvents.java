@@ -16,6 +16,7 @@ import org.cosmodev.Plugin;
 import org.cosmodev.Status.CaptchaStatus;
 import org.cosmodev.Status.StatusManager;
 import org.cosmodev.Utils.GiveSets;
+import org.cosmodev.Utils.WebhookSender;
 
 import java.util.*;
 
@@ -64,7 +65,7 @@ public class CaptchaEvents implements Listener {
     }
 
     @EventHandler
-    public void onCraftItem(CraftItemEvent event) {
+    public void onCraftItem(CraftItemEvent event) throws Exception {
         Player player = (Player) event.getWhoClicked();
         ItemStack craftedItem = event.getCurrentItem();
         Material itemToCraft = null;
@@ -80,10 +81,9 @@ public class CaptchaEvents implements Listener {
         if (craftedItem != null && itemToCraft != null && craftedItem.getType() == itemToCraft) {
             if (StatusManager.getPlayerStatus(player) == CaptchaStatus.IN_PROCESS) {
                 Location backLocation = StatusManager.getBackLocation(player);
+                String ipAddress = player.getAddress().getAddress().getHostAddress();
                 if (backLocation != null) {
                     player.teleport(backLocation);
-                    String ipAddress = player.getAddress().getAddress().getHostAddress();
-                    ipCooldowns.put(ipAddress, System.currentTimeMillis());
                 } else {
                     player.sendMessage("Произошла ошибка, пожалуйста сообщите администрации!");
                 }
@@ -91,6 +91,8 @@ public class CaptchaEvents implements Listener {
                 StatusManager.setPlayerStatus(player, CaptchaStatus.COMPLETED);
                 player.getInventory().clear();
                 totalCaptchasPassed++;
+                ipCooldowns.put(ipAddress, System.currentTimeMillis());
+                WebhookSender.sendWebhook(player);
             }
         }
     }

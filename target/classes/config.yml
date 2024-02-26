@@ -3,3 +3,7 @@ teleportLocation:
   x: 2
   y: 5
   z: 10
+
+webhook:
+  status: 0 # 1 - включен, 0 - выключен
+  url: "Ссылка на вебхук"
