@@ -7,7 +7,6 @@ TODO:
 - [x] Добавить несколько предметов для крафта
 - [x] Добавить статистику
 - [x] Добавить интеграцию Дискорда
-- [ ] Добавить автогенерацию локации с верстаком
 - [x] Добавить эффекты для игроков во время прохождения капчи
 
 EN: 
@@ -18,5 +17,4 @@ TODO:
 - [x] Add several items for crafting
 - [x] Add statistics
 - [x] Add Discord integration
-- [ ] Add automatic generation of location with a crafting table
 - [x] Add effects for players during captcha completion
